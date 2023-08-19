@@ -5,7 +5,6 @@
   fetchFromGitHub,
   fetchurl,
   cmake,
-  git,
   glew,
   SDL2,
   zlib,
@@ -19,7 +18,6 @@
   libpng,
   sqlite,
   openal,
-  unzip,
   cjson,
 }: let
   version = "2.81.1";
@@ -43,11 +41,6 @@
     asset = "pak2.pk3";
     hash = "sha256-pIq3SaGhKrTZE3KGsfI9ZCwp2lmEWyuvyPZOBSzwbz4=";
   };
-
-  mainProgram =
-    if stdenv.hostPlatform.system == "i686-linux"
-    then "etl.i386"
-    else "etl.x86_64";
 in
   stdenv.mkDerivation {
     pname = "etlegacy";
@@ -60,7 +53,7 @@ in
       sha256 = "sha256-CGXtc51vaId/SHbD34ZeT0gPsrl7p2DEw/Kp+GBZIaA="; # 2.81.1
     };
 
-    nativeBuildInputs = [cmake git makeBinaryWrapper unzip cjson];
+    nativeBuildInputs = [cmake makeBinaryWrapper cjson];
     buildInputs = [
       glew
       SDL2
@@ -109,7 +102,7 @@ in
       homepage = "https://etlegacy.com";
       platforms = ["i686-linux" "x86_64-linux"];
       license = [licenses.gpl3 licenses.cc-by-nc-sa-30];
-      inherit mainProgram;
+      mainProgram = "etl";
       maintainers = with maintainers; [ashleyghooper drupol];
     };
   }
