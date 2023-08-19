@@ -1,27 +1,27 @@
-{
-  stdenv,
-  lib,
-  makeBinaryWrapper,
-  fetchFromGitHub,
-  fetchurl,
-  cmake,
-  glew,
-  SDL2,
-  zlib,
-  minizip,
-  libjpeg,
-  curl,
-  lua,
-  libogg,
-  libtheora,
-  freetype,
-  libpng,
-  sqlite,
-  openal,
-  cjson,
-  copyDesktopItems,
-  makeDesktopItem
-}: let
+{ lib
+, stdenv
+, fetchurl
+, fetchFromGitHub
+, cjson
+, cmake
+, copyDesktopItems
+, makeBinaryWrapper
+, curl
+, freetype
+, glew
+, libjpeg
+, libogg
+, libpng
+, libtheora
+, lua
+, minizip
+, openal
+, SDL2
+, sqlite
+, zlib
+, makeDesktopItem
+}:
+let
   version = "2.81.1";
 
   fetchAsset = { asset, hash }: fetchurl {
@@ -44,85 +44,91 @@
     hash = "sha256-pIq3SaGhKrTZE3KGsfI9ZCwp2lmEWyuvyPZOBSzwbz4=";
   };
 in
-  stdenv.mkDerivation {
-    pname = "etlegacy";
-    inherit version;
+stdenv.mkDerivation {
+  pname = "etlegacy";
+  inherit version;
 
-    src = fetchFromGitHub {
-      owner = "etlegacy";
-      repo = "etlegacy";
-      rev = "refs/tags/v" + version;
-      sha256 = "sha256-CGXtc51vaId/SHbD34ZeT0gPsrl7p2DEw/Kp+GBZIaA="; # 2.81.1
-    };
+  src = fetchFromGitHub {
+    owner = "etlegacy";
+    repo = "etlegacy";
+    rev = "refs/tags/v${version}";
+    hash = "sha256-CGXtc51vaId/SHbD34ZeT0gPsrl7p2DEw/Kp+GBZIaA="; # 2.81.1
+  };
 
-    nativeBuildInputs = [cmake makeBinaryWrapper cjson copyDesktopItems];
-    buildInputs = [
-      glew
-      SDL2
-      zlib
-      minizip
-      libjpeg
-      curl
-      lua
-      libogg
-      libtheora
-      freetype
-      libpng
-      sqlite
-      openal
-    ];
+  nativeBuildInputs = [
+    cjson
+    cmake
+    copyDesktopItems
+    makeBinaryWrapper
+  ];
 
-    cmakeFlags = [
-      "-DCMAKE_BUILD_TYPE=Release"
-      "-DCROSS_COMPILE32=0"
-      "-DBUILD_SERVER=1"
-      "-DBUILD_CLIENT=1"
-      "-DBUNDLED_JPEG=0"
-      "-DBUNDLED_LIBS=0"
-      "-DINSTALL_EXTRA=0"
-      "-DINSTALL_OMNIBOT=0"
-      "-DINSTALL_GEOIP=0"
-      "-DINSTALL_WOLFADMIN=0"
-      "-DFEATURE_AUTOUPDATE=0"
-      "-DINSTALL_DEFAULT_BASEDIR=${placeholder "out"}/lib/etlegacy"
-      "-DINSTALL_DEFAULT_BINDIR=${placeholder "out"}/lib/etlegacy"
-    ];
+  buildInputs = [
+    curl
+    freetype
+    glew
+    libjpeg
+    libogg
+    libpng
+    libtheora
+    lua
+    minizip
+    openal
+    SDL2
+    sqlite
+    zlib
+  ];
 
-    postInstall = ''
-      ln -s ${pak0} $out/lib/etlegacy/etmain/pak0.pk3
-      ln -s ${pak1} $out/lib/etlegacy/etmain/pak1.pk3
-      ln -s ${pak2} $out/lib/etlegacy/etmain/pak2.pk3
+  cmakeFlags = [
+    "-DCMAKE_BUILD_TYPE=Release"
+    "-DCROSS_COMPILE32=0"
+    "-DBUILD_SERVER=1"
+    "-DBUILD_CLIENT=1"
+    "-DBUNDLED_JPEG=0"
+    "-DBUNDLED_LIBS=0"
+    "-DINSTALL_EXTRA=0"
+    "-DINSTALL_OMNIBOT=0"
+    "-DINSTALL_GEOIP=0"
+    "-DINSTALL_WOLFADMIN=0"
+    "-DFEATURE_AUTOUPDATE=0"
+    "-DINSTALL_DEFAULT_BASEDIR=${placeholder "out"}/lib/etlegacy"
+    "-DINSTALL_DEFAULT_BINDIR=${placeholder "out"}/lib/etlegacy"
+  ];
 
-      makeWrapper $out/lib/etlegacy/etl.* $out/bin/etl
-      makeWrapper $out/lib/etlegacy/etlded.* $out/bin/etlded
+  postInstall = ''
+    ln -s ${pak0} $out/lib/etlegacy/etmain/pak0.pk3
+    ln -s ${pak1} $out/lib/etlegacy/etmain/pak1.pk3
+    ln -s ${pak2} $out/lib/etlegacy/etmain/pak2.pk3
 
-      rm -rf $out/share/applications/com.etlegacy.ETLegacy.x86_64.desktop
-    '';
+    makeWrapper $out/lib/etlegacy/etl.* $out/bin/etl
+    makeWrapper $out/lib/etlegacy/etlded.* $out/bin/etlded
 
-    desktopItems = [
-      (makeDesktopItem {
-        categories = [ "Game" "ActionGame" ];
-        comment = "World War II first-person shooter";
-        desktopName = "ET: Legacy";
-        exec = "etl +connect %u";
-        genericName = "World War II first-person shooter";
-        icon = "etl";
-        keywords = [ "team-based" "multiplayer" "tactical" "WWII" "enemy" "territory" "etl" "etlegacy" ];
-        name = "com.etlegacy.ETLegacy";
-        prefersNonDefaultGPU = true;
-        startupNotify = false;
-        terminal = false;
-      })
-    ];
+    rm -rf $out/share/applications/com.etlegacy.ETLegacy.x86_64.desktop
+  '';
 
-    hardeningDisable = [ "fortify" ];
+  desktopItems = [
+    (makeDesktopItem {
+      categories = [ "Game" "ActionGame" ];
+      comment = "World War II first-person shooter";
+      desktopName = "ET: Legacy";
+      exec = "etl +connect %u";
+      genericName = "World War II first-person shooter";
+      icon = "etl";
+      keywords = [ "team-based" "multiplayer" "tactical" "WWII" "enemy" "territory" "etl" "etlegacy" ];
+      name = "com.etlegacy.ETLegacy";
+      prefersNonDefaultGPU = true;
+      startupNotify = false;
+      terminal = false;
+    })
+  ];
 
-    meta = with lib; {
-      description = "ET: Legacy is an open source project based on the code of Wolfenstein: Enemy Territory which was released in 2010 under the terms of the GPLv3 license";
-      homepage = "https://etlegacy.com";
-      platforms = ["i686-linux" "x86_64-linux"];
-      license = [licenses.gpl3 licenses.cc-by-nc-sa-30];
-      mainProgram = "etl";
-      maintainers = with maintainers; [ashleyghooper drupol];
-    };
-  }
+  hardeningDisable = [ "fortify" ];
+
+  meta = {
+    description = "ET: Legacy is an open source project based on the code of Wolfenstein: Enemy Territory which was released in 2010 under the terms of the GPLv3 license";
+    homepage = "https://etlegacy.com";
+    license = with lib.licenses; [ gpl3 cc-by-nc-sa-30 ];
+    mainProgram = "etl";
+    maintainers = with lib.maintainers; [ ashleyghooper drupol ];
+    platforms = lib.platforms.linux;
+  };
+}
