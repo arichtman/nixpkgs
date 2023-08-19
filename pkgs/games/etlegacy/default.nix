@@ -19,6 +19,8 @@
   sqlite,
   openal,
   cjson,
+  copyDesktopItems,
+  makeDesktopItem
 }: let
   version = "2.81.1";
 
@@ -53,7 +55,7 @@ in
       sha256 = "sha256-CGXtc51vaId/SHbD34ZeT0gPsrl7p2DEw/Kp+GBZIaA="; # 2.81.1
     };
 
-    nativeBuildInputs = [cmake makeBinaryWrapper cjson];
+    nativeBuildInputs = [cmake makeBinaryWrapper cjson copyDesktopItems];
     buildInputs = [
       glew
       SDL2
@@ -93,7 +95,25 @@ in
 
       makeWrapper $out/lib/etlegacy/etl.* $out/bin/etl
       makeWrapper $out/lib/etlegacy/etlded.* $out/bin/etlded
+
+      rm -rf $out/share/applications/com.etlegacy.ETLegacy.x86_64.desktop
     '';
+
+    desktopItems = [
+      (makeDesktopItem {
+        categories = [ "Game" "ActionGame" ];
+        comment = "World War II first-person shooter";
+        desktopName = "ET: Legacy";
+        exec = "etl +connect %u";
+        genericName = "World War II first-person shooter";
+        icon = "etl";
+        keywords = [ "team-based" "multiplayer" "tactical" "WWII" "enemy" "territory" "etl" "etlegacy" ];
+        name = "com.etlegacy.ETLegacy";
+        prefersNonDefaultGPU = true;
+        startupNotify = false;
+        terminal = false;
+      })
+    ];
 
     hardeningDisable = [ "fortify" ];
 
