@@ -88,7 +88,7 @@ in
     cmakeFlags = [
       "-DCMAKE_BUILD_TYPE=Release"
       "-DCROSS_COMPILE32=0"
-      "-DBUILD_SERVER=0"
+      "-DBUILD_SERVER=1"
       "-DBUILD_CLIENT=1"
       "-DBUNDLED_JPEG=0"
       "-DBUNDLED_LIBS=0"
