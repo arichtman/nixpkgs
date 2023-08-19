@@ -2,7 +2,6 @@
   stdenv,
   lib,
   makeWrapper,
-  writeScriptBin,
   fetchFromGitHub,
   fetchurl,
   cmake,
@@ -45,12 +44,6 @@
     hash = "sha256-pIq3SaGhKrTZE3KGsfI9ZCwp2lmEWyuvyPZOBSzwbz4=";
   };
 
-  fakeGit = writeScriptBin "git" ''
-    #! ${stdenv.shell} -e
-    if [ "$1" = "describe" ]; then
-      echo "${version}"
-    fi
-  '';
   mainProgram =
     if stdenv.hostPlatform.system == "i686-linux"
     then "etl.i386"
@@ -67,7 +60,7 @@ in
       sha256 = "sha256-CGXtc51vaId/SHbD34ZeT0gPsrl7p2DEw/Kp+GBZIaA="; # 2.81.1
     };
 
-    nativeBuildInputs = [cmake fakeGit git makeWrapper unzip cjson];
+    nativeBuildInputs = [cmake git makeWrapper unzip cjson];
     buildInputs = [
       glew
       SDL2
