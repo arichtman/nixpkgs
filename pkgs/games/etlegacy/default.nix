@@ -97,9 +97,8 @@ in
       "-DINSTALL_GEOIP=0"
       "-DINSTALL_WOLFADMIN=0"
       "-DFEATURE_AUTOUPDATE=0"
-      "-DINSTALL_DEFAULT_BASEDIR=."
-      "-DINSTALL_DEFAULT_BINDIR=."
-      "-DINSTALL_DEFAULT_MODDIR=."
+      "-DINSTALL_DEFAULT_BASEDIR=${placeholder "out"}/lib/etlegacy"
+      "-DINSTALL_DEFAULT_BINDIR=${placeholder "out"}/lib/etlegacy"
     ];
 
     postInstall = ''
