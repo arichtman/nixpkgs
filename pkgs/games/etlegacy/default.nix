@@ -1,7 +1,7 @@
 {
   stdenv,
   lib,
-  makeWrapper,
+  makeBinaryWrapper,
   fetchFromGitHub,
   fetchurl,
   cmake,
@@ -60,7 +60,7 @@ in
       sha256 = "sha256-CGXtc51vaId/SHbD34ZeT0gPsrl7p2DEw/Kp+GBZIaA="; # 2.81.1
     };
 
-    nativeBuildInputs = [cmake git makeWrapper unzip cjson];
+    nativeBuildInputs = [cmake git makeBinaryWrapper unzip cjson];
     buildInputs = [
       glew
       SDL2
@@ -102,13 +102,15 @@ in
     ];
 
     postInstall = ''
-      ETMAIN=$out/etmain
-      mkdir -p $ETMAIN
-      ln -s ${pak0} $ETMAIN/pak0.pk3
-      ln -s ${pak1} $ETMAIN/pak1.pk3
-      ln -s ${pak2} $ETMAIN/pak2.pk3
-      makeWrapper $out/${mainProgram} $out/bin/${mainProgram} --chdir $out
+      ln -s ${pak0} $out/lib/etlegacy/etmain/pak0.pk3
+      ln -s ${pak1} $out/lib/etlegacy/etmain/pak1.pk3
+      ln -s ${pak2} $out/lib/etlegacy/etmain/pak2.pk3
+
+      makeWrapper $out/lib/etlegacy/etl.* $out/bin/etl
+      makeWrapper $out/lib/etlegacy/etlded.* $out/bin/etlded
     '';
+
+    hardeningDisable = [ "fortify" ];
 
     meta = with lib; {
       description = "ET: Legacy is an open source project based on the code of Wolfenstein: Enemy Territory which was released in 2010 under the terms of the GPLv3 license";
