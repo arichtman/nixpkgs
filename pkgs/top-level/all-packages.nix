@@ -1990,6 +1990,8 @@ with pkgs;
 
   tfk8s = callPackage ../tools/misc/tfk8s { };
 
+  tfmerge = callPackage ../tools/misc/tfmerge { };
+
   tfplugindocs = callPackage ../development/tools/tfplugindocs { };
 
   thumbs = callPackage ../tools/misc/thumbs { };
