@@ -8,6 +8,10 @@
     maintainers = lib.teams.gnome.members;
   };
 
+  imports = [
+    (lib.mkRenamedOptionModule [ "services" "gnome" "tracker-miners" "enable" ] [ "services" "gnome" "localsearch" "enable" ])
+  ];
+
   ###### interface
 
   options = {
