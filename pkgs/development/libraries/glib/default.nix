@@ -23,6 +23,9 @@
 , makeHardcodeGsettingsPatch
 , testers
 , gobject-introspection
+, linuxPackages
+, libsystemtap
+, libsysprof-capture
 , mesonEmulatorHook
 , withIntrospection ?
   stdenv.hostPlatform.emulatorAvailable buildPackages &&
@@ -61,11 +64,11 @@ in
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "glib";
-  version = "2.80.4";
+  version = "2.81.1";
 
   src = fetchurl {
     url = "mirror://gnome/sources/glib/${lib.versions.majorMinor finalAttrs.version}/glib-${finalAttrs.version}.tar.xz";
-    hash = "sha256-JOApxd/JtE5Fc2l63zMHipgnxIk4VVAEs7kJb6TqA08=";
+    hash = "sha256-YpNlzecpp7drBi/CGKEJqEu8RmjKDJKrWQ7Mz5afgkw=";
   };
 
   patches = lib.optionals stdenv.isDarwin [
@@ -126,9 +129,6 @@ stdenv.mkDerivation (finalAttrs: {
     # and by default meson installs in to $out/share/gdb/auto-load
     # which does not help
     ./gdb_script.patch
-
-    # glib assumes that `RTLD_LOCAL` is defined to `0`, which is true on Linux and FreeBSD but not on Darwin.
-    ./gmodule-rtld_local.patch
   ];
 
   outputs = [ "bin" "out" "dev" "devdoc" ];
@@ -137,6 +137,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   buildInputs = [
     finalAttrs.setupHook
+    libsysprof-capture
     pcre2
   ] ++ lib.optionals (!stdenv.hostPlatform.isWindows) [
     bash gnum4 # install glib-gettextize and m4 macros for other apps to use
@@ -144,6 +145,7 @@ stdenv.mkDerivation (finalAttrs: {
     elfutils
   ] ++ lib.optionals stdenv.isLinux [
     libselinux
+    libsystemtap
     util-linuxMinimal # for libmount
   ] ++ lib.optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
     AppKit Carbon Cocoa CoreFoundation CoreServices Foundation
@@ -171,12 +173,16 @@ stdenv.mkDerivation (finalAttrs: {
     gobject-introspection'
   ] ++ lib.optionals (withIntrospection && !stdenv.buildPlatform.canExecute stdenv.hostPlatform) [
     mesonEmulatorHook
+  ] ++ lib.optionals stdenv.isLinux [
+    (linuxPackages.systemtap.override { withStap = false; }) # for dtrace
   ];
 
   propagatedBuildInputs = [ zlib libffi gettext libiconv ];
 
   mesonFlags = [
     "-Ddocumentation=true" # gvariant specification can be built without gi-docgen
+    (lib.mesonEnable "dtrace" stdenv.isLinux)
+    (lib.mesonEnable "systemtap" stdenv.isLinux) # requires dtrace option to be enabled
     "-Dnls=enabled"
     "-Ddevbindir=${placeholder "dev"}/bin"
     (lib.mesonEnable "introspection" withIntrospection)
