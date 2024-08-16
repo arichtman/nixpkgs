@@ -102,9 +102,12 @@ stdenv.mkDerivation (finalAttrs: {
 
     # GLib contains many binaries used for different purposes;
     # we will install them to different outputs:
-    # 1. Tools for desktop environment ($bin)
+    # 1. Tools for desktop environment and introspection ($bin)
     #    * gapplication (non-darwin)
     #    * gdbus
+    #    * gi-compile-repository
+    #    * gi-decompile-typelib
+    #    * gi-inspect-typelib
     #    * gio
     #    * gio-launch-desktop (symlink to $out)
     #    * gsettings
