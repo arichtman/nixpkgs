@@ -23,7 +23,6 @@
 , makeHardcodeGsettingsPatch
 , testers
 , gobject-introspection
-, linuxPackages
 , libsystemtap
 , libsysprof-capture
 , mesonEmulatorHook
@@ -60,6 +59,9 @@ let
                   else if (stdenv.hostPlatform.extensions.library == ".a") then "2.0.a"
                   else if (stdenv.hostPlatform.extensions.library == ".dll") then "2.0-0.dll"
                   else "2.0-0.lib";
+
+  systemtap' = buildPackages.linuxPackages.systemtap.override { withStap = false; };
+  withDtrace = lib.meta.availableOn stdenv.buildPlatform systemtap';
 in
 
 stdenv.mkDerivation (finalAttrs: {
@@ -146,9 +148,9 @@ stdenv.mkDerivation (finalAttrs: {
     bash gnum4 # install glib-gettextize and m4 macros for other apps to use
   ] ++ lib.optionals (lib.meta.availableOn stdenv.hostPlatform elfutils) [
     elfutils
+    libsystemtap # also requires elfutils
   ] ++ lib.optionals stdenv.isLinux [
     libselinux
-    libsystemtap
     util-linuxMinimal # for libmount
   ] ++ lib.optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
     AppKit Carbon Cocoa CoreFoundation CoreServices Foundation
@@ -176,16 +178,16 @@ stdenv.mkDerivation (finalAttrs: {
     gobject-introspection'
   ] ++ lib.optionals (withIntrospection && !stdenv.buildPlatform.canExecute stdenv.hostPlatform) [
     mesonEmulatorHook
-  ] ++ lib.optionals stdenv.isLinux [
-    (linuxPackages.systemtap.override { withStap = false; }) # for dtrace
+  ] ++ lib.optionals withDtrace [
+    systemtap' # for dtrace
   ];
 
   propagatedBuildInputs = [ zlib libffi gettext libiconv ];
 
   mesonFlags = [
     "-Ddocumentation=true" # gvariant specification can be built without gi-docgen
-    (lib.mesonEnable "dtrace" stdenv.isLinux)
-    (lib.mesonEnable "systemtap" stdenv.isLinux) # requires dtrace option to be enabled
+    (lib.mesonEnable "dtrace" withDtrace)
+    (lib.mesonEnable "systemtap" withDtrace) # requires dtrace option to be enabled
     "-Dnls=enabled"
     "-Ddevbindir=${placeholder "dev"}/bin"
     (lib.mesonEnable "introspection" withIntrospection)
